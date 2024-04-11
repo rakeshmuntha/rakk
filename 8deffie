@@ -1,0 +1,83 @@
+package diffieHell;
+
+import java.net.*;
+import java.io.*;
+
+public class DHServer {
+
+public static void main(String[] args)throws IOException{
+// TODO Auto-generated method stub
+try {
+int port=8088;
+int b=3;
+double clientP,clientG,clientA,B,Bdash;
+String Bstr;
+ServerSocket ss=new ServerSocket(port);
+System.out.println("Waiting for client on port"+ss.getLocalPort()+"to connect");
+Socket server=ss.accept();
+System.out.println("Just connected to"+server.getRemoteSocketAddress());
+System.out.println("From server:Private Key="+b);
+DataInputStream in=new DataInputStream(server.getInputStream());
+clientP=Integer.parseInt(in.readUTF());
+System.out.println("From Client:P="+clientP);
+clientG=Integer.parseInt(in.readUTF());
+System.out.println("From Client:G="+clientG);
+clientA=Double.parseDouble(in.readUTF());
+System.out.println("From Client:Public Key="+clientA);
+B=((Math.pow(clientG, b))%clientP);
+Bstr=Double.toString(B);
+OutputStream otc=server.getOutputStream();
+DataOutputStream out=new DataOutputStream(otc);
+out.writeUTF(Bstr);
+Bdash=((Math.pow(clientA, b))%clientP);
+System.out.println("Secret Key to perform Symetric Encryption="+Bdash);
+server.close();
+}
+catch(SocketTimeoutException s) {
+System.out.println("Socket timed out");
+}
+catch(IOException e) {
+}
+}
+
+}
+
+package diffieHell;
+import java.io.*;
+import java.net.*;
+public class DHClient {
+
+public static void main(String[] args) {
+// TODO Auto-generated method stub
+try {
+String pstr,gstr,Astr;
+String serverName="localhost";
+int port=8088;
+int p=23,g=9,a=4;
+double Adash,serverB;
+System.out.println("Connecting to "+serverName+" on port "+port);
+Socket client=new Socket(serverName,port);
+System.out.println("Just connected to "+client.getRemoteSocketAddress());
+OutputStream ots=client.getOutputStream();
+DataOutputStream out=new DataOutputStream(ots);
+pstr=Integer.toString(p);
+out.writeUTF(pstr);
+gstr=Integer.toString(g);
+out.writeUTF(gstr);
+double A=((Math.pow(g, a))%p);
+Astr=Double.toString(A);
+out.writeUTF(Astr);
+System.out.println("From Client:Private Key="+a);
+DataInputStream in=new DataInputStream(client.getInputStream());
+serverB=Double.parseDouble(in.readUTF());
+System.out.println("From server:Public Key="+serverB);
+Adash=((Math.pow(serverB, a))%p);
+System.out.println("Secret Key to perform symmetric Encryption="+Adash);
+client.close();
+}
+catch(Exception e) {
+e.printStackTrace();
+}
+}
+
+}
